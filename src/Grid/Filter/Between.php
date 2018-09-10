@@ -6,6 +6,8 @@ use Encore\Admin\Admin;
 
 class Between extends AbstractFilter
 {
+    protected $format;
+
     /**
      * {@inheritdoc}
      */
@@ -50,6 +52,37 @@ class Between extends AbstractFilter
     }
 
     /**
+     * Value formater.
+     *
+     * @param Closure $callback
+     *
+     * @return $this
+     */
+    public function format(\Closure $callback)
+    {
+        $this->format = $callback;
+
+        return $this;
+    }
+    
+    /**
+     * Format value by cumtomed callback.
+     *
+     * @param Closure $callback
+     *
+     * @return $this
+     */
+    public function formatValue($value)
+    {
+        if ($this->format) {
+            $value['start'] = call_user_func($this->format, $value['start']);
+            $value['end'] = call_user_func($this->format, $value['end']);
+        }
+
+        return $value;
+    }
+
+    /**
      * Get condition of this filter.
      *
      * @param array $inputs
@@ -68,6 +101,8 @@ class Between extends AbstractFilter
             return $val !== '';
         });
 
+        $value = $this->formatValue($value);
+
         if (empty($value)) {
             return;
         }
@@ -82,7 +117,7 @@ class Between extends AbstractFilter
 
         $this->query = 'whereBetween';
 
-        return $this->buildCondition($this->column, $this->value);
+        return $this->buildCondition($this->column, $value);
     }
 
     /**
