@@ -212,6 +212,7 @@ class Filter implements Renderable
     {
         if (!$this->useIdFilter && !$this->idFilterRemoved) {
             array_shift($this->filters);
+            $this->layout->columns()->first()->filters()->shift();
             $this->idFilterRemoved = true;
         }
     }
